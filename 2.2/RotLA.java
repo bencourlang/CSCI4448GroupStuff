@@ -20,6 +20,18 @@ public class RotLA{
         Creature see = new Seekers();
         Creature blink = new Blinkers();
 
+        
+        ArrayList<ArrayList<ArrayList<String>>> map = f.makeRooms();
+
+        f.updateRooms(b, sneak, r, t, o, see, blink, map);
+
+        for(int i = 0; i < map.size(); i++){
+            for(int j = 0; j < map.size()-2; j++){
+                System.out.println(map.get(i).get(j));
+            }
+            System.out.println();
+        }
+
         /*Scanner s = new Scanner(System.in);
 
         Facility f = new Facility();
@@ -202,8 +214,6 @@ class Facility{
         int y_axis_length = 3;
         int z_axis_length = 5;	
         ArrayList<ArrayList<ArrayList<String>>> map = new ArrayList<>(x_axis_length);
-        
-        //Change string to arraylist to store multiple things in each section of map
 
         for (int i = 0; i < z_axis_length; i++) {
             map.add(new ArrayList<ArrayList<String>>(y_axis_length));
@@ -212,34 +222,107 @@ class Facility{
             }
         }
 
-        map.get(0).set(0, new ArrayList<String>(Arrays.asList("0-0-0", "0-1-0", "0-2-0")));
-        map.get(0).set(1, new ArrayList<String>(Arrays.asList("0-0-1", "0-1-1", "0-2-1")));
-        map.get(0).set(2, new ArrayList<String>(Arrays.asList("0-1-2", "0-1-2", "0-2-2")));
+        map.get(0).set(0, new ArrayList<String>(Arrays.asList("0-0-0: - : -", "0-1-0: - : -", "0-2-0: - : -")));
+        map.get(0).set(1, new ArrayList<String>(Arrays.asList("0-0-1: - : -", "0-1-1: - : -", "0-2-1: - : -")));
+        map.get(0).set(2, new ArrayList<String>(Arrays.asList("0-1-2: - : -", "0-1-2: - : -", "0-2-2: - : -")));
 
-        map.get(1).set(0, new ArrayList<String>(Arrays.asList("1-0-0", "1-1-0", "1-2-0")));
-        map.get(1).set(1, new ArrayList<String>(Arrays.asList("1-0-1", "1-1-1", "1-2-1")));
-        map.get(1).set(2, new ArrayList<String>(Arrays.asList("1-1-2", "1-1-2", "1-2-2")));
+        map.get(1).set(0, new ArrayList<String>(Arrays.asList("1-0-0: - : -", "1-1-0: - : -", "1-2-0: - : -")));
+        map.get(1).set(1, new ArrayList<String>(Arrays.asList("1-0-1: - : -", "1-1-1: - : -", "1-2-1: - : -")));
+        map.get(1).set(2, new ArrayList<String>(Arrays.asList("1-1-2: - : -", "1-1-2: - : -", "1-2-2: - : -")));
 
-        map.get(2).set(0, new ArrayList<String>(Arrays.asList("2-0-0", "2-1-0", "2-2-0")));
-        map.get(2).set(1, new ArrayList<String>(Arrays.asList("2-0-1", "2-1-1", "2-2-1")));
-        map.get(2).set(2, new ArrayList<String>(Arrays.asList("2-1-2", "2-1-2", "2-2-2")));
+        map.get(2).set(0, new ArrayList<String>(Arrays.asList("2-0-0: - : -", "2-1-0: - : -", "2-2-0: - : -")));
+        map.get(2).set(1, new ArrayList<String>(Arrays.asList("2-0-1: - : -", "2-1-1: - : -", "2-2-1: - : -")));
+        map.get(2).set(2, new ArrayList<String>(Arrays.asList("2-1-2: - : -", "2-1-2: - : -", "2-2-2: - : -")));
 
-        map.get(3).set(0, new ArrayList<String>(Arrays.asList("3-0-0", "3-1-0", "3-2-0")));
-        map.get(3).set(1, new ArrayList<String>(Arrays.asList("3-0-1", "3-1-1", "3-2-1")));
-        map.get(3).set(2, new ArrayList<String>(Arrays.asList("3-1-2", "3-1-2", "3-2-2")));
+        map.get(3).set(0, new ArrayList<String>(Arrays.asList("3-0-0: - : -", "3-1-0: - : -", "3-2-0: - : -")));
+        map.get(3).set(1, new ArrayList<String>(Arrays.asList("3-0-1: - : -", "3-1-1: - : -", "3-2-1: - : -")));
+        map.get(3).set(2, new ArrayList<String>(Arrays.asList("3-1-2: - : -", "3-1-2: - : -", "3-2-2: - : -")));
 
-        map.get(4).set(0, new ArrayList<String>(Arrays.asList("4-0-0", "4-1-0", "4-2-0")));
-        map.get(4).set(1, new ArrayList<String>(Arrays.asList("4-0-1", "4-1-1", "4-2-1")));
-        map.get(4).set(2, new ArrayList<String>(Arrays.asList("4-1-2", "4-1-2", "4-2-2")));
+        map.get(4).set(0, new ArrayList<String>(Arrays.asList("4-0-0: - : -", "4-1-0: - : -", "4-2-0: - : -")));
+        map.get(4).set(1, new ArrayList<String>(Arrays.asList("4-0-1: - : -", "4-1-1: - : -", "4-2-1: - : -")));
+        map.get(4).set(2, new ArrayList<String>(Arrays.asList("4-1-2: - : -", "4-1-2: - : -", "4-2-2: - : -")));
 
         return map;
     }
 
-    public static void populateRooms(){
+    /*public static void populateRooms(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map){
+    //public static void populateRooms(Adventurer b, Creature o, ArrayList<ArrayList<ArrayList<String>>> map){
+        //ArrayList<ArrayList<ArrayList<String>>> map = f.makeRooms();
+        updateRooms(map, b, o);
+        ArrayList<Integer> orbSpot = o.getLoc();
+        map.get(orbSpot.get(0)).get(orbSpot.get(1)).get(orbSpot.get(2));
+        
         //adventure starts at 0-1-1
         //orbiters starts in outer rooms
         //seekers randomly placed
         //blinkers start randomly on level 4
+    }*/
+
+    public static ArrayList<ArrayList<ArrayList<String>>> updateRooms(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map){
+        //Check if null
+        //if null put -
+        //if not null put name
+        //if multiple in 1 room, adv on left cre on right
+        //check for mult adv and cre same room, do something if so
+
+        ArrayList<Adventurer> aliveAdv = new ArrayList<>();
+        if(b.getName() != "-"){
+            aliveAdv.add(b);
+        }
+        if(sneak.getName() != "-"){
+            aliveAdv.add(sneak);
+        }
+        if(r.getName() != "-"){
+            aliveAdv.add(r);
+        }
+        if(t.getName() != "-"){
+            aliveAdv.add(t);
+        }
+
+
+        for(int i = 0; i < aliveAdv.size(); i++){
+            ArrayList<Adventurer> addAdv = new ArrayList<>();
+            addAdv.add(aliveAdv.get(i));
+            for(int j = 0; j < aliveAdv.size(); j++){
+                if(aliveAdv.get(i).getLocation().equals(aliveAdv.get(j).getLocation())){
+                    addAdv.add(aliveAdv.get(j));
+                }
+            }
+
+            String names = "";
+            for(int j = 0; j < addAdv.size(); j++){
+                if(j == addAdv.size()-1){
+                    names += addAdv.get(j);
+                }
+                else{
+                    names += addAdv.get(j).getName() + ", ";
+                }
+            }
+        
+            ArrayList<Integer> advSpot = addAdv.get(i).getLocation();
+            map.get(advSpot.get(0)).get(advSpot.get(1)).set(advSpot.get(2), advSpot.get(0) + "-" + advSpot.get(1) + "-" + advSpot.get(2) + ": " + names + " : -");       
+        }
+
+        ArrayList<Creature> aliveCre = new ArrayList<>();
+        if(o.getName() != "-"){
+            aliveCre.add(o);
+        }
+        if(see.getName() != "-"){
+            aliveCre.add(see);
+        }
+        if(blink.getName() != "-"){
+            aliveCre.add(blink);
+        }
+
+
+
+        // ArrayList<Integer> bSpot = b.getLocation();
+        
+        // String curSpot = map.get(bSpot.get(0)).get(bSpot.get(1)).get(bSpot.get(2));
+        // map.get(bSpot.get(0)).get(bSpot.get(1)).set(bSpot.get(2), bSpot.get(0) + "-" + bSpot.get(1) + "-" + bSpot.get(2) + ": " + b.getName() + " : -");
+        // //curSpot = aSpot.get(0) + "-" + aSpot.get(1) + "-" + aSpot.get(2) + ": " + a.getName() + " : -";
+
+        return map;
     }
 }
 
@@ -247,12 +330,24 @@ abstract class Adventurer{
     int hp;
     ArrayList<Integer> location = new ArrayList<>(); //going to update
     int treasure;
+    String name;
     Adventurer(){
         hp = 3;
         location.add(0);
         location.add(1);
         location.add(1);
         treasure = 0;
+    }
+
+    void setLocation(ArrayList<Integer> xyz){
+        location.clear();
+        location.add(xyz.get(0));
+        location.add(xyz.get(1));
+        location.add(xyz.get(2));
+    }
+
+    ArrayList<Integer> getLocation(){
+        return location;
     }
     
 
@@ -274,10 +369,18 @@ abstract class Adventurer{
         Random r = new Random();
         return opt.get(r.nextInt(opt.size()-1));
     }
+
+    String getName(){
+        return name;
+    }
     
 }
 
 class Brawler extends Adventurer{
+    Brawler(){
+        name = "B";
+    }
+
     @Override
     int fight(){
         int sum = 2;
@@ -286,6 +389,9 @@ class Brawler extends Adventurer{
 }
 
 class Sneakers extends Adventurer{
+    Sneakers(){
+        name = "SN";
+    }
     //if encounters a creature
     //randomly generate number 0 - 1 
     // Random rand = new Random(); //instance of random class
@@ -301,12 +407,19 @@ class Sneakers extends Adventurer{
 }
 
 class Runners extends Adventurer{
+    Runners(){
+        name = "R";
+    }
     boolean tookTurn = false;
     //take a turn if they move 
 
 }
 
 class Thieves extends Adventurer{
+    Thieves(){
+        name = "T";
+    }
+    
     @Override
     int fight(){
         int sum = 1;
@@ -324,6 +437,8 @@ class Thieves extends Adventurer{
 abstract class Creature{
     int hp;
     ArrayList<Integer> location = new ArrayList<>(); //going to update
+    String name;
+    
     Creature(){
         hp = 1;
     }
@@ -331,14 +446,23 @@ abstract class Creature{
         int sum = 0;
         return sum;
     }
+
+    ArrayList<Integer> getLoc(){
+        return location;
+    }
+
+    String getName(){
+        return name;
+    }
 }
 
 
 class Orbiters extends Creature{
-    Creature c = new Creature() {};
 
-    ArrayList<Integer> getLoc(){
-        ArrayList<Integer> xyz = new ArrayList<>();
+    ArrayList<Integer> location = new ArrayList<>();
+
+    Orbiters(){
+        name = "O";
         
         Random rand = new Random(); //instance of random class
         boolean work = false;
@@ -350,20 +474,19 @@ class Orbiters extends Creature{
         
             if(rX != 1 && rY != 1){
                 work = true;
-                xyz.add(rX);
-                xyz.add(rY);
-                xyz.add(rZ);
+                location.add(rX);
+                location.add(rY);
+                location.add(rZ);
             }
         }
-
-        return xyz;
     }
 
 }
 
 class Seekers extends Creature{
-    ArrayList<Integer> getLoc(){
-        ArrayList<Integer> xyz = new ArrayList<>();
+    Seekers(){
+        name = "SE";
+
         Random rand = new Random(); //instance of random class
         boolean work = false;
 
@@ -374,31 +497,27 @@ class Seekers extends Creature{
         
             if(rX != 0 && rY != 1 && rZ != 1){
                 work = true;
-                xyz.add(rX);
-                xyz.add(rY);
-                xyz.add(rZ);
+                location.add(rX);
+                location.add(rY);
+                location.add(rZ);
             }
         }
-
-        return xyz;
     }
 }
 
 class Blinkers extends Creature{
-    ArrayList<Integer> getLoc(){
-        ArrayList<Integer> xyz = new ArrayList<>();
-        
+    Blinkers(){
+        name = "BL";
+
         Random rand = new Random(); //instance of random class
-        
+    
         int rX = rand.nextInt(2); 
         int rY = rand.nextInt(2); 
         int rZ = 4; 
-    
-        xyz.add(rX);
-        xyz.add(rY);
-        xyz.add(rZ);
 
-        return xyz;
+        location.add(rX);
+        location.add(rY);
+        location.add(rZ);
     }
 }
 

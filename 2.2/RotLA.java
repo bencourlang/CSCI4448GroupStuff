@@ -23,7 +23,14 @@ public class RotLA{
         
         ArrayList<ArrayList<ArrayList<String>>> map = f.makeRooms();
 
+
         f.updateRooms(b, sneak, r, t, o, see, blink, map);
+        //System.out.println(map);
+        //System.out.println("DOne");
+        //System.out.println(t);
+        //System.out.println(b);
+
+
 
         for(int i = 0; i < map.size(); i++){
             for(int j = 0; j < map.size()-2; j++){
@@ -279,10 +286,10 @@ class Facility{
             aliveAdv.add(t);
         }
 
-
         for(int i = 0; i < aliveAdv.size(); i++){
             ArrayList<Adventurer> addAdv = new ArrayList<>();
             addAdv.add(aliveAdv.get(i));
+            System.out.println(addAdv);
             for(int j = 0; j < aliveAdv.size(); j++){
                 if(aliveAdv.get(i).getLocation().equals(aliveAdv.get(j).getLocation())){
                     addAdv.add(aliveAdv.get(j));
@@ -290,15 +297,16 @@ class Facility{
             }
 
             String names = "";
-            for(int j = 0; j < addAdv.size(); j++){
-                if(j == addAdv.size()-1){
+            for(int j = 0; j < addAdv.size() - 1; j++){ //made it -1 to remove the Thieves word
+                if(j == addAdv.size()){
                     names += addAdv.get(j);
                 }
                 else{
                     names += addAdv.get(j).getName() + ", ";
                 }
             }
-        
+            
+
             ArrayList<Integer> advSpot = addAdv.get(i).getLocation();
             map.get(advSpot.get(0)).get(advSpot.get(1)).set(advSpot.get(2), advSpot.get(0) + "-" + advSpot.get(1) + "-" + advSpot.get(2) + ": " + names + " : -");       
         }

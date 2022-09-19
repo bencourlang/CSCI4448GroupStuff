@@ -1,14 +1,15 @@
-import java.awt.*;
+//import java.awt.*;
 
-import javax.lang.model.util.ElementScanner6;
-import javax.swing.*;
-import java.io.*;
+//import javax.lang.model.util.ElementScanner6;
+//import javax.swing.*;
+//import java.io.*;
 import java.util.*;
-import java.util.Scanner;
+//import java.util.Scanner;
 import java.util.Random;
 
 public class RotLA{
     public static void main(String[] args){
+        System.out.println();
         Facility f = new Facility();
 
         Adventurer b = new Brawler();
@@ -19,18 +20,24 @@ public class RotLA{
         Creature o = new Orbiters();
         Creature see = new Seekers();
         Creature blink = new Blinkers();
-
         
         ArrayList<ArrayList<ArrayList<String>>> map = f.makeRooms();
 
         f.updateRooms(b, sneak, r, t, o, see, blink, map);
 
-        for(int i = 0; i < map.size(); i++){
-            for(int j = 0; j < map.size()-2; j++){
-                System.out.println(map.get(i).get(j));
-            }
-            System.out.println();
-        }
+        b.move();
+        sneak.move();
+        r.move();
+        t.move();
+
+        System.out.println();
+
+        // System.out.println(b.getLocation());
+        // System.out.println(sneak.getLocation());
+        // System.out.println(r.getLocation());
+        // System.out.println(t.getLocation());
+
+        f.updateRooms(b, sneak, r, t, o, see, blink, map);
 
         /*Scanner s = new Scanner(System.in);
 
@@ -209,7 +216,7 @@ public class RotLA{
 class Facility{
     Facility(){}
 
-    public static ArrayList<ArrayList<ArrayList<String>>> makeRooms(){
+    ArrayList<ArrayList<ArrayList<String>>> makeRooms(){
         int x_axis_length = 3;
         int y_axis_length = 3;
         int z_axis_length = 5;	
@@ -258,14 +265,21 @@ class Facility{
         //blinkers start randomly on level 4
     }*/
 
-    public static ArrayList<ArrayList<ArrayList<String>>> updateRooms(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map){
+    ArrayList<ArrayList<ArrayList<String>>> updateRooms(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map){
         //Check if null
         //if null put -
         //if not null put name
         //if multiple in 1 room, adv on left cre on right
         //check for mult adv and cre same room, do something if so
 
+        //System.out.println(b.getLocation());
+
+        ArrayList<ArrayList<Integer>> locs = new ArrayList<>();
+        //ArrayList<Integer> locs = new ArrayList<>();
+
         ArrayList<Adventurer> aliveAdv = new ArrayList<>();
+        //aliveAdv.clear();
+
         if(b.getName() != "-"){
             aliveAdv.add(b);
         }
@@ -280,9 +294,13 @@ class Facility{
         }
 
 
-        for(int i = 0; i < aliveAdv.size(); i++){
+        /*for(int j = 0; j < aliveAdv.size(); j++){
+            System.out.println(aliveAdv.get(j).getLocation());
+        }*/
+
+        /*for(int i = 0; i < aliveAdv.size(); i++){ // ************** START *****************
             ArrayList<Adventurer> addAdv = new ArrayList<>();
-            addAdv.add(aliveAdv.get(i));
+            //addAdv.add(aliveAdv.get(i));
             for(int j = 0; j < aliveAdv.size(); j++){
                 if(aliveAdv.get(i).getLocation().equals(aliveAdv.get(j).getLocation())){
                     addAdv.add(aliveAdv.get(j));
@@ -290,18 +308,29 @@ class Facility{
             }
 
             String names = "";
-            for(int j = 0; j < addAdv.size(); j++){
-                if(j == addAdv.size()-1){
-                    names += addAdv.get(j);
-                }
-                else{
-                    names += addAdv.get(j).getName() + ", ";
-                }
+
+            if(addAdv.size() == 1){
+                names += addAdv.get(0).getName();
+                
+                ArrayList<Integer> advSpot = addAdv.get(0).getLocation();
+                map.get(advSpot.get(0)).get(advSpot.get(1)).set(advSpot.get(2), advSpot.get(0) + "-" + advSpot.get(1) + "-" + advSpot.get(2) + ": " + names);  
             }
-        
-            ArrayList<Integer> advSpot = addAdv.get(i).getLocation();
-            map.get(advSpot.get(0)).get(advSpot.get(1)).set(advSpot.get(2), advSpot.get(0) + "-" + advSpot.get(1) + "-" + advSpot.get(2) + ": " + names + " : -");       
-        }
+            else{
+                for(int j = 0; j < addAdv.size(); j++){
+                    if(j == addAdv.size()-1){
+                        names += addAdv.get(j).getName() + ": ";
+                    }
+                    else{
+                        names += addAdv.get(j).getName() + ", ";
+                    }
+                }
+
+                ArrayList<Integer> advSpot = addAdv.get(i).getLocation();
+                map.get(advSpot.get(0)).get(advSpot.get(1)).set(advSpot.get(2), advSpot.get(0) + "-" + advSpot.get(1) + "-" + advSpot.get(2) + ": " + names);  
+            }
+
+            //locs.add(aliveAdv.get(i).getLocation());
+        }*/
 
         ArrayList<Creature> aliveCre = new ArrayList<>();
         if(o.getName() != "-"){
@@ -314,7 +343,124 @@ class Facility{
             aliveCre.add(blink);
         }
 
+        //System.out.println(o.getLocation());
 
+        /*for(int i = 0; i < aliveCre.size(); i++){
+            ArrayList<Creature> addCre = new ArrayList<>();
+            //addCre.add(aliveCre.get(i));
+            for(int j = 0; j < aliveCre.size(); j++){
+                if(aliveCre.get(i).getLocation().equals(aliveCre.get(j).getLocation())){
+                    addCre.add(aliveCre.get(j));
+                }
+            }
+
+            String names = "";
+
+            if(addCre.size() == 1){
+                names += addCre.get(0).getName();
+                
+                ArrayList<Integer> creSpot = addCre.get(0).getLocation();
+                map.get(creSpot.get(0)).get(creSpot.get(1)).set(creSpot.get(2), creSpot.get(0) + "-" + creSpot.get(1) + "-" + creSpot.get(2) + ": " + names);  
+            }
+            else{
+                for(int j = 0; j < addCre.size(); j++){
+                    if(j == addCre.size()-1){
+                        names += addCre.get(j).getName();
+                    }
+                    else{
+                        names += addCre.get(j).getName() + ", ";
+                    }
+                }
+
+                ArrayList<Integer> creSpot = addCre.get(i).getLocation();
+                map.get(creSpot.get(0)).get(creSpot.get(1)).set(creSpot.get(2), creSpot.get(0) + "-" + creSpot.get(1) + "-" + creSpot.get(2) + ": " + names);  
+            }
+            
+            //locs.add(aliveCre.get(i).getLocation());
+        }*/ //                              ************* END *****************
+
+        for(int z = 0; z < 5; z++){
+            for(int x = 0; x < 3; x++){
+                for(int y = 0; y < 3; y++){
+                    for(int l = 0; l < aliveAdv.size(); l++){
+                        ArrayList<Integer> hold = new ArrayList<>();
+                        hold.add(z);
+                        hold.add(x);
+                        hold.add(y);
+                        if(aliveAdv.get(l).getLocation().equals(hold)){
+                            String temp = z + "-" + x + "-" + y + ": " + aliveAdv.get(l).getName() + " : -";
+                            map.get(z).get(x).set(y, temp);
+                        }
+                        else{
+                            String temp = z + "-" + x + "-" + y + ": - : -";
+                            map.get(z).get(x).set(y, temp);
+                        }
+                    }
+                    for(int l = 0; l < aliveCre.size(); l++){
+                        ArrayList<Integer> hold = new ArrayList<>();
+                        hold.add(z);
+                        hold.add(x);
+                        hold.add(y);
+                        if(aliveCre.get(l).getLocation().equals(hold)){
+                            String temp = z + "-" + x + "-" + y + ": " + aliveCre.get(l).getName() + " : -";
+                            map.get(z).get(x).set(y, temp);
+                        }
+                        else{
+                            String temp = z + "-" + x + "-" + y + ": - : -";
+                            map.get(z).get(x).set(y, temp);
+                        }
+                    }
+                    //System.out.println(map.get(z).get(x).get(y));
+                }
+            }
+        }
+
+        for(int i = 0; i < map.size(); i++){
+            for(int j = 0; j < map.size()-2; j++){
+                System.out.println(map.get(i).get(j));
+            }
+            System.out.println();
+        }
+
+        /*for(int i = 0; i < locs.size(); i++){
+            for(int z = 0; z < 5; z++){
+                for(int x = 0; x < 3; x++){
+                    for(int y = 0; y < 3; y++){
+                        if(map.get(z).get(x).get(y).equals(locs.get(i))){
+                            String names = "";
+                            for(int j = 0; j < locs.size(); j++){
+                                if(locs.get(i).equals(locs.get(j))){
+
+                                }
+                            }
+                            String hold = z + "-" + x + "-" + y + ": - : -";
+                            map.get(z).get(x).set(y, hold);
+                        }
+                        else{
+                            String hold = ": - : -";
+                            map.get(z).get(x).set(y, hold);
+                        }
+                    }
+                }
+            }
+        }*/
+
+        /*for(int i = 0; i < 5; i++){
+            for(int j = 0; j < 3; j++){
+                for(int k = 0; k < 3; k++){
+                    for(int l = 0; l < locs.size(); l++){
+                        if(!map.get(i).get(j).get(k).equals(locs.get(l))){
+                            String hold = i + "-" + j + "-" + k + ": - : -";
+                            map.get(i).get(j).set(k, hold);
+                        }
+                    }
+                }
+            }
+        }*/
+        
+        /*for(int i = 0; i < locs.size(); i++){
+            System.out.println(locs.get(i));
+        }*/
 
         // ArrayList<Integer> bSpot = b.getLocation();
         
@@ -331,6 +477,7 @@ abstract class Adventurer{
     ArrayList<Integer> location = new ArrayList<>(); //going to update
     int treasure;
     String name;
+
     Adventurer(){
         hp = 3;
         location.add(0);
@@ -339,11 +486,11 @@ abstract class Adventurer{
         treasure = 0;
     }
 
-    void setLocation(ArrayList<Integer> xyz){
+    void setLocation(ArrayList<Integer> zxy){
         location.clear();
-        location.add(xyz.get(0));
-        location.add(xyz.get(1));
-        location.add(xyz.get(2));
+        location.add(zxy.get(0));
+        location.add(zxy.get(1));
+        location.add(zxy.get(2));
     }
 
     ArrayList<Integer> getLocation(){
@@ -364,10 +511,74 @@ abstract class Adventurer{
         return true;
     }
 
-    public static int randDir(ArrayList<Integer> opt){
-        int movDir = -1;
+    void move(){
         Random r = new Random();
-        return opt.get(r.nextInt(opt.size()-1));
+        Schmoovement schmoo = new Schmoovement(location);
+        //System.out.println(schmoo);
+        //System.out.println(schmoo.potDir.size());
+
+        ArrayList<Integer> newLoc = new ArrayList<>();
+
+        switch(r.nextInt(schmoo.potDir.size())){
+            case 0:
+                newLoc.add(this.location.get(0));
+                newLoc.add(this.location.get(1));
+                newLoc.add(this.location.get(2) - 1);
+
+                this.setLocation(newLoc);
+
+                //System.out.println("North");
+                break;
+            case 1:
+                newLoc.add(this.location.get(0));
+                newLoc.add(this.location.get(1));
+                newLoc.add(this.location.get(2) + 1);
+
+                this.setLocation(newLoc);
+
+                //System.out.println("South");
+                break;
+            case 2:
+                newLoc.add(this.location.get(0));
+                newLoc.add(this.location.get(1) + 1);
+                newLoc.add(this.location.get(2));
+
+                this.setLocation(newLoc);
+
+                //System.out.println("East");
+                break;
+            case 3:
+                newLoc.add(this.location.get(0));
+                newLoc.add(this.location.get(1) - 1);
+                newLoc.add(this.location.get(2));
+
+                this.setLocation(newLoc);
+
+                //System.out.println("West");
+                break;
+            case 4:
+                newLoc.add(this.location.get(0) + 1);
+                newLoc.add(this.location.get(1));
+                newLoc.add(this.location.get(2));
+
+                this.setLocation(newLoc);
+
+                //System.out.println("Up");
+                break;
+            case 5:
+                newLoc.add(this.location.get(0) - 1);
+                newLoc.add(this.location.get(1));
+                newLoc.add(this.location.get(2));
+
+                this.setLocation(newLoc);
+
+                //System.out.println("Down");
+                break;
+        
+            default:
+                System.out.println("Yo how tf");
+                break;
+        }
     }
 
     String getName(){
@@ -447,7 +658,14 @@ abstract class Creature{
         return sum;
     }
 
-    ArrayList<Integer> getLoc(){
+    void setLocation(ArrayList<Integer> zxy){
+        location.clear();
+        location.add(zxy.get(0));
+        location.add(zxy.get(1));
+        location.add(zxy.get(2));
+    }
+
+    ArrayList<Integer> getLocation(){
         return location;
     }
 
@@ -459,7 +677,7 @@ abstract class Creature{
 
 class Orbiters extends Creature{
 
-    ArrayList<Integer> location = new ArrayList<>();
+    //ArrayList<Integer> location = new ArrayList<>();
 
     Orbiters(){
         name = "O";
@@ -468,15 +686,18 @@ class Orbiters extends Creature{
         boolean work = false;
 
         while(!work){
-            int rX = rand.nextInt(2); 
-            int rY = rand.nextInt(2); 
-            int rZ = rand.nextInt(4); 
+            int rX = rand.nextInt(3); 
+            int rY = rand.nextInt(3); 
+            int rZ = rand.nextInt(5); 
         
-            if(rX != 1 && rY != 1){
+            if(rX == 1 && rY == 1){
+                //idk
+            }
+            else{
                 work = true;
+                location.add(rZ);
                 location.add(rX);
                 location.add(rY);
-                location.add(rZ);
             }
         }
     }
@@ -491,15 +712,15 @@ class Seekers extends Creature{
         boolean work = false;
 
         while(!work){
-            int rX = rand.nextInt(4); 
-            int rY = rand.nextInt(4); 
-            int rZ = rand.nextInt(4); 
+            int rX = rand.nextInt(3); 
+            int rY = rand.nextInt(3); 
+            int rZ = rand.nextInt(5); 
         
             if(rX != 0 && rY != 1 && rZ != 1){
                 work = true;
+                location.add(rZ);
                 location.add(rX);
                 location.add(rY);
-                location.add(rZ);
             }
         }
     }
@@ -511,13 +732,13 @@ class Blinkers extends Creature{
 
         Random rand = new Random(); //instance of random class
     
-        int rX = rand.nextInt(2); 
-        int rY = rand.nextInt(2); 
+        int rX = rand.nextInt(3); 
+        int rY = rand.nextInt(3); 
         int rZ = 4; 
 
+        location.add(rZ);
         location.add(rX);
         location.add(rY);
-        location.add(rZ);
     }
 }
 
@@ -542,97 +763,84 @@ class Schmoovement{
     int y;
     int z;
     //static ArrayList<String> potDir = new ArrayList<>();
-    static ArrayList<Integer> potDir = new ArrayList<>();
+    ArrayList<String> potDir = new ArrayList<>();
 
-    Schmoovement(ArrayList<Integer> xyz){
+    Schmoovement(ArrayList<Integer> zxy){
         potDir.clear();
 
-        x = xyz.get(0);
-        y = xyz.get(1);
-        z = xyz.get(2);
+        z = zxy.get(0);
+        x = zxy.get(1);
+        y = zxy.get(2);
 
-        canNorth(y);
-        canSouth(y);
-        canEast(z);
-        canWest(z);
-        canUp(x);
-        canDown(x);
+        canNorth(x);
+        canSouth(x);
+        canEast(y);
+        canWest(y);
+        canUp(z);
+        canDown(z);
 
-        System.out.println(potDir);
+        //System.out.println(potDir);
     }
 
-    public static void move(int dir){
-        switch(dir){
-            case 1: //move north save status ? update status
-                /*map.get(x).get(y).set(z, store);
-                store = map.get(x).get(y-1).get(z);
-                map.get(x).get(y-1).set(z, p);*/
-                break;
-        
-            default:
-                break;
-        }
-    }
-
-    public static void canNorth(int y){
+    /*void canNorth(int y){
         if(y != 0){
             potDir.add(1);
         }
     }
-    public static void canSouth(int y){
+    void canSouth(int y){
         if(y != 2){
             potDir.add(2);
         }
     }
-    public static void canEast(int z){
+    void canEast(int z){
         if(z != 2){
             potDir.add(3);
         }
     }
-    public static void canWest(int z){
+    void canWest(int z){
         if(z != 0){
             potDir.add(4);
         }
     }
-    public static void canUp(int x){
+    void canUp(int x){
         if(x != 3){
             potDir.add(5);
         }
     }
-    public static void canDown(int x){
+    void canDown(int x){
         if(x != 0){
             potDir.add(6);
         }
-    }
+    }*/
 
-    /*public static void canNorth(int y){
+    void canNorth(int y){
         if(y != 0){
             potDir.add("North");
         }
     }
-    public static void canSouth(int y){
+    void canSouth(int y){
         if(y != 2){
             potDir.add("South");
         }
     }
-    public static void canEast(int z){
+    void canEast(int z){
         if(z != 2){
             potDir.add("East");
         }
     }
-    public static void canWest(int z){
+    void canWest(int z){
         if(z != 0){
             potDir.add("West");
         }
     }
-    public static void canUp(int x){
+    void canUp(int x){
         if(x != 3){
             potDir.add("Up");
         }
     }
-    public static void canDown(int x){
+    void canDown(int x){
         if(x != 0){
             potDir.add("Down");
         }
-    }*/
+    }
 }

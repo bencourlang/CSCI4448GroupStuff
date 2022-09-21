@@ -1,11 +1,4 @@
-//import java.awt.*;
-
-//import javax.lang.model.util.ElementScanner6;
-//import javax.swing.*;
-//import java.io.*;
-import java.time.Year;
 import java.util.*;
-//import java.util.Scanner;
 import java.util.Random;
 
 public class RotLA{
@@ -21,14 +14,30 @@ public class RotLA{
         Creature o = new Orbiters();
         Creature see = new Seekers();
         Creature blink = new Blinkers();
+
+        TotalTreasure tt = new TotalTreasure();
+
+        checkAllDeadAdv cada = new checkAllDeadAdv();
+        checkAllDeadCre cadc = new checkAllDeadCre();
         
         ArrayList<ArrayList<ArrayList<String>>> map = f.makeRooms();
+
+        Boolean gameOver = false;
+
+        //f.updateRooms(b, sneak, r, t, o, see, blink, map);
+
+        /*for(int i = 0; i < map.size(); i++){
+            for(int j = 0; j < map.size()-2; j++){
+                System.out.println(map.get(i).get(j));
+            }
+            System.out.println();
+        }*/
         
-        for(int i = 0; i < 10; i++){
+        /*for(int i = 0; i < 10; i++){
             System.out.println("*********************" + i + "*********************");
             System.out.println();
 
-            f.updateRooms(b, sneak, r, t, o, see, blink, map);
+            f.updateRooms(b, sneak, r, t, o, see, blink, map, gameOver, tt);
 
             b.move(map);
             sneak.move(map);
@@ -37,10 +46,43 @@ public class RotLA{
 
             o.move(map);
             blink.move(map);
-            see.move(map);
+            //see.move(map);
     
             System.out.println();
+        }*/
+
+        System.out.println(tt.numTreasure());
+
+        
+
+        while(!gameOver){
+            f.updateRooms(b, sneak, r, t, o, see, blink, map, tt);
+
+            b.move(map);
+            sneak.move(map);
+            r.move(map);
+            t.move(map);
+
+            o.move(map);
+            blink.move(map);
+            //see.move(map);
+    
+            System.out.println();
+
+
+
+            if(tt.gameOver == true){
+                gameOver = tt.gameOver;
+            }
+            if(cada.areTheyDead(b, sneak, r, t) == true){
+                gameOver = true;
+            }
+            if(cadc.areTheyDead(o, see, blink) == true){
+                gameOver = true;
+            }
         }
+
+        
 
         /*f.updateRooms(b, sneak, r, t, o, see, blink, map);
 
@@ -70,7 +112,7 @@ class Facility{
         for (int i = 0; i < z_axis_length; i++) {
             map.add(new ArrayList<ArrayList<String>>(y_axis_length));
             for (int j = 0; j < y_axis_length; j++) {
-                map.get(i).add(new ArrayList<String>(z_axis_length));
+                map.get(i).add(new ArrayList<String>(x_axis_length));
             }
         }
 
@@ -97,7 +139,7 @@ class Facility{
         return map;
     }
 
-    ArrayList<ArrayList<ArrayList<String>>> updateRooms(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map){
+    ArrayList<ArrayList<ArrayList<String>>> updateRooms(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map, TotalTreasure tt){
         //Check if null
         //if null put -
         //if not null put name
@@ -106,27 +148,27 @@ class Facility{
 
         ArrayList<Adventurer> aliveAdv = new ArrayList<>();
 
-        if(b.getName() != "-"){
+        if(b.isAlive == true){
             aliveAdv.add(b);
         }
-        if(sneak.getName() != "-"){
+        if(sneak.isAlive == true){
             aliveAdv.add(sneak);
         }
-        if(r.getName() != "-"){
+        if(r.isAlive == true){
             aliveAdv.add(r);
         }
-        if(t.getName() != "-"){
+        if(t.isAlive == true){
             aliveAdv.add(t);
         }
 
         ArrayList<Creature> aliveCre = new ArrayList<>();
-        if(o.getName() != "-"){
+        if(o.isAlive == true){
             aliveCre.add(o);
         }
-        if(see.getName() != "-"){
+        if(see.isAlive == true){
             aliveCre.add(see);
         }
-        if(blink.getName() != "-"){
+        if(blink.isAlive == true){
             aliveCre.add(blink);
         }
 
@@ -151,6 +193,7 @@ class Facility{
                         hold.add(y);
                         if(aliveAdv.get(i).getLocation().equals(hold)){
                             String temp = z + "-" + x + "-" + y + ": " + names + ": ";
+                            //String temp = z + "-" + y + "-" + x + ": " + names + ": ";
                             String creNames = "";
                             for(int j = 0; j < aliveCre.size(); j++){
                                 if(aliveCre.get(j).getLocation().equals(hold)){
@@ -159,9 +202,17 @@ class Facility{
                             }
                             if(creNames.equals("")){
                                 creNames = " -";
+                                aliveAdv.get(i).findTreasure(tt);
                             }
                             //String temp = z + "-" + x + "-" + y + ": " + aliveAdv.get(i).getName() + " : -";
                             temp += creNames;
+
+                            /*if(names == ""){
+                                map.get(z).get(x).set(y, temp);
+                            }
+                            else{
+                                map.get(z).get(y).set(x, temp);
+                            }*/
                             map.get(z).get(x).set(y, temp);
                         }
                     }
@@ -181,16 +232,18 @@ class Facility{
                         hold.add(z);
                         hold.add(x);
                         hold.add(y);
-                        /*if(aliveCre.get(i).getLocation().equals(hold)){
+                        if(aliveCre.get(i).getLocation().equals(hold)){
                             String temp = z + "-" + x + "-" + y + ": " + names + ": -";
                             map.get(z).get(x).set(y, temp);
-                        }*/
+                        }
                         if(aliveCre.get(i).getLocation().equals(hold)){
                             //String temp = z + "-" + x + "-" + y + ": " + names + ": ";
                             String temp = z + "-" + x + "-" + y + ": ";
+                            //String temp = z + "-" + y + "-" + x + ": ";
                             String advNames = "";
                             for(int j = 0; j < aliveAdv.size(); j++){
                                 if(aliveAdv.get(j).getLocation().equals(hold)){
+                                    Fight f = new Fight(aliveAdv.get(j), aliveCre.get(i));
                                     advNames += aliveAdv.get(j).getName() + " ";
                                 }
                             }
@@ -199,6 +252,16 @@ class Facility{
                             }
                             //String temp = z + "-" + x + "-" + y + ": " + aliveAdv.get(i).getName() + " : -";
                             temp += advNames;
+
+                            /*temp += ": " + names;
+
+                            if(names == ""){
+                                map.get(z).get(x).set(y, temp);
+                            }
+                            else{
+                                map.get(z).get(y).set(x, temp);
+                            }*/
+
                             temp += ": " + names;
                             map.get(z).get(x).set(y, temp);
                         }
@@ -207,6 +270,82 @@ class Facility{
                 }
             }
         }
+
+        /*for(int i = 0; i < aliveAdv.size(); i++){ // ************** START *****************
+             ArrayList<Adventurer> addAdv = new ArrayList<>();
+             addAdv.add(aliveAdv.get(i));
+             //addAdv.add(aliveAdv.get(i));
+             for(int j = 0; j < aliveAdv.size(); j++){
+                if(aliveAdv.get(i).getLocation().equals(aliveAdv.get(j).getLocation())){
+                    addAdv.add(aliveAdv.get(j));
+                }
+            }
+
+            String names = "";
+
+            if(addAdv.size() == 1){
+                names += addAdv.get(0).getName();
+                 
+                ArrayList<Integer> advSpot = addAdv.get(0).getLocation();
+                map.get(advSpot.get(0)).get(advSpot.get(1)).set(advSpot.get(2), advSpot.get(0) + "-" + advSpot.get(1) + "-" + advSpot.get(2) + ": " + names);  
+            }
+            else{
+                for(int j = 0; j < addAdv.size(); j++){
+                    if(j == addAdv.size()-1){
+                        names += addAdv.get(j).getName() + ": ";
+                    }
+                    else{
+                        names += addAdv.get(j).getName() + ", ";
+                    }
+                }
+
+                ArrayList<Integer> advSpot = addAdv.get(i).getLocation();
+                map.get(advSpot.get(0)).get(advSpot.get(1)).set(advSpot.get(2), advSpot.get(0) + "-" + advSpot.get(1) + "-" + advSpot.get(2) + ": " + names);  
+            }
+
+            ArrayList<Integer> advSpot = addAdv.get(i).getLocation();
+            map.get(advSpot.get(0)).get(advSpot.get(1)).set(advSpot.get(2), advSpot.get(0) + "-" + advSpot.get(1) + "-" + advSpot.get(2) + ": " + names + " : -");       
+        }
+
+             //locs.add(aliveAdv.get(i).getLocation());
+
+        //ArrayList<Creature> aliveCre = new ArrayList<>();
+
+        //System.out.println(o.getLocation());
+
+        for(int i = 0; i < aliveCre.size(); i++){
+            ArrayList<Creature> addCre = new ArrayList<>();
+            //addCre.add(aliveCre.get(i));
+            for(int j = 0; j < aliveCre.size(); j++){
+                if(aliveCre.get(i).getLocation().equals(aliveCre.get(j).getLocation())){
+                    addCre.add(aliveCre.get(j));
+                }
+            }
+
+            String names = "";
+
+            if(addCre.size() == 1){
+                names += addCre.get(0).getName();
+                 
+                ArrayList<Integer> creSpot = addCre.get(0).getLocation();
+                map.get(creSpot.get(0)).get(creSpot.get(1)).set(creSpot.get(2), creSpot.get(0) + "-" + creSpot.get(1) + "-" + creSpot.get(2) + ": " + names);  
+            }
+            else{
+                for(int j = 0; j < addCre.size(); j++){
+                    if(j == addCre.size()-1){
+                        names += addCre.get(j).getName();
+                    }
+                    else{
+                        names += addCre.get(j).getName() + ", ";
+                    }
+                }
+
+                ArrayList<Integer> creSpot = addCre.get(i).getLocation();
+                map.get(creSpot.get(0)).get(creSpot.get(1)).set(creSpot.get(2), creSpot.get(0) + "-" + creSpot.get(1) + "-" + creSpot.get(2) + ": " + names);  
+            }
+             
+            //locs.add(aliveCre.get(i).getLocation());
+        }*/ //                              ************* END *****************
 
         for(int i = 0; i < map.size(); i++){
             for(int j = 0; j < map.size()-2; j++){
@@ -222,15 +361,15 @@ class Facility{
 abstract class Adventurer{
     int hp;
     ArrayList<Integer> location = new ArrayList<>(); //going to update
-    int treasure;
     String name;
+    Boolean isAlive;
 
     Adventurer(){
         hp = 3;
         location.add(0);
         location.add(1);
         location.add(1);
-        treasure = 0;
+        isAlive = true;
     }
 
     void setLocation(ArrayList<Integer> zxy){
@@ -238,6 +377,7 @@ abstract class Adventurer{
         location.add(zxy.get(0));
         location.add(zxy.get(1));
         location.add(zxy.get(2));
+        
     }
 
     ArrayList<Integer> getLocation(){
@@ -246,19 +386,31 @@ abstract class Adventurer{
     
 
     int fight(){
-        int sum = 0;
-        //roll 2 d6
-        //call fight class 
-        return sum;
+        RollDie rd = new RollDie();
+        return rd.val1 + rd.val2;
     }
 
-    void findTreasure(){
+    void findTreasure(TotalTreasure tt){
         RollDie rd = new RollDie();
-        if(rd.val1 + rd.val2 > 10){
-            this.treasure += 1;
+        if(rd.val1 + rd.val2 > 9){
+            System.out.println(this.name + " has found a treasure");
+            tt.addTreasure();
+            System.out.println();
+            /*if(tt.treasure >= 10){
+                System.out.println("All Treasure Found");
+            }*/
         }
         //roll 2 die 
         //if above 10, they get a treasure (treasure +=1)
+    }
+
+    void changeHp(int newHp){
+        hp = newHp;
+
+        if(hp <= 0){
+            System.out.println(name + " is dead");
+            isAlive = false;
+        }
     }
 
     void move(ArrayList<ArrayList<ArrayList<String>>> map){
@@ -355,8 +507,8 @@ class Brawler extends Adventurer{
 
     @Override
     int fight(){
-        int sum = 2;
-        return sum;
+        RollDie rd = new RollDie();
+        return rd.val1 + rd.val2 + 4;
     }
 }
 
@@ -364,18 +516,19 @@ class Sneakers extends Adventurer{
     Sneakers(){
         name = "SN";
     }
-    //if encounters a creature
-    //randomly generate number 0 - 1 
-    // Random rand = new Random(); //instance of random class
-    // int upperbound = 1;
-    // int int_random = rand.nextInt(upperbound); 
-    // if(int_random == 1){
-    //     //move to join any adjacent Adventurer on their level
-    //     //If no Adventurer is adjacent to them or an Adventurer is already in their Room, Seekers will not move
-    // }
-    // else{
-    //     //fight
-    // }
+
+    @Override
+    int fight(){
+
+        Random rand = new Random(); //instance of random class
+        int randVal = rand.nextInt(2);
+        
+        if(randVal == 1){
+            return -1;
+        }
+        RollDie rd = new RollDie();
+        return rd.val1 + rd.val2;
+    }
 }
 
 class Runners extends Adventurer{
@@ -394,16 +547,23 @@ class Thieves extends Adventurer{
     
     @Override
     int fight(){
-        int sum = 1;
-        return sum;
+        RollDie rd = new RollDie();
+        return rd.val1 + rd.val2 + 1;
     }
 
     @Override
-    void findTreasure(){
+    void findTreasure(TotalTreasure tt){
         RollDie rd = new RollDie();
-        if(rd.val1 + rd.val2 > 9){
-            this.treasure += 1;
+        if(rd.val1 + rd.val2 > 8){
+            System.out.println(this.name + " has found a treasure");
+            System.out.println();
+            tt.addTreasure();
+            /*if(tt.treasure >= 10){
+                System.out.println("All Treasure Found");
+            }*/
         }
+        //roll 2 die 
+        //if above 10, they get a treasure (treasure +=1)
     }
 }
 
@@ -412,13 +572,15 @@ abstract class Creature{
     int hp;
     ArrayList<Integer> location = new ArrayList<>(); //going to update
     String name;
+    Boolean isAlive;
     
     Creature(){
         hp = 1;
+        isAlive = true;
     }
     int fight(){
-        int sum = 0;
-        return sum;
+        RollDie rd = new RollDie();
+        return rd.val1 + rd.val2;
     }
 
     void setLocation(ArrayList<Integer> zxy){
@@ -434,6 +596,14 @@ abstract class Creature{
 
     String getName(){
         return name;
+    }
+
+    void changeHp(int newHp){
+        hp = newHp;
+        if(hp <= 0){
+            System.out.println(name + " is dead");
+            isAlive = false;
+        }
     }
     
     void move(ArrayList<ArrayList<ArrayList<String>>> map){
@@ -475,6 +645,8 @@ class Orbiters extends Creature{
         oldLoc.add(location.get(0));
         oldLoc.add(location.get(1));
         oldLoc.add(location.get(2));
+
+        //System.out.println(oldLoc);
 
         if(this.location.get(1).equals(0) && this.location.get(2).equals(0)){
             ArrayList<Integer> newLoc = new ArrayList<>();
@@ -544,6 +716,8 @@ class Orbiters extends Creature{
         if(!map.get(oldLoc.get(0)).get(oldLoc.get(1)).get(oldLoc.get(2)).equals(check)){
             map.get(oldLoc.get(0)).get(oldLoc.get(1)).set(oldLoc.get(2), check);
         }
+        
+        //System.out.println(this.location);
     }
 
 }
@@ -582,12 +756,15 @@ class Seekers extends Creature{
         Schmoovement schmo = new Schmoovement(curLoc);
 
         System.out.println(schmo.potDir);
+        System.out.println(schmo.potDir.size());
+        String k = map.get(curLoc.get(0)).get(curLoc.get(1)).get(curLoc.get(2));
+        System.out.println("Current Location" + k);
         
 
         for(int i = 0; i < schmo.potDir.size(); i++){
             if(schmo.potDir.get(i) == 1){ //can move north
                 //System.out.println(s);
-                String s = map.get(curLoc.get(0)).get(curLoc.get(1) - 1).get(curLoc.get(2));
+                String s = map.get(curLoc.get(0)).get(curLoc.get(1)).get(curLoc.get(2) + 1);
                 System.out.println("North " + s);
                 s = s.substring(s.indexOf(":") + 1);
                 s = s.substring(0, s.indexOf(":"));
@@ -595,12 +772,12 @@ class Seekers extends Creature{
                 if(s != "-"){
                     newLoc.add(this.location.get(curLoc.get(0)));
                     newLoc.add(this.location.get(curLoc.get(1)));
-                    newLoc.add(this.location.get(curLoc.get(2)));
+                    newLoc.add(this.location.get(curLoc.get(2)) + 1);
                     setLocation(newLoc);
                 }
             }
             if(schmo.potDir.get(i) == 2){
-                String s = map.get(curLoc.get(0)).get(curLoc.get(1) + 1).get(curLoc.get(2));
+                String s = map.get(curLoc.get(0)).get(curLoc.get(1)).get(curLoc.get(2) - 1);
                 System.out.println("South " + s);
                 s = s.substring(s.indexOf(":") + 1);
                 s = s.substring(0, s.indexOf(":"));
@@ -608,48 +785,39 @@ class Seekers extends Creature{
                 if(s != "-"){
                     newLoc.add(this.location.get(curLoc.get(0)));
                     newLoc.add(this.location.get(curLoc.get(1)));
-                    newLoc.add(this.location.get(curLoc.get(2)));
+                    newLoc.add(this.location.get(curLoc.get(2)) - 1);
                     setLocation(newLoc);
                 }
                 
             }
             if(schmo.potDir.get(i) == 3){   
-                String s = map.get(curLoc.get(0)).get(curLoc.get(1)).get(curLoc.get(2) + 1);
+                String s = map.get(curLoc.get(0)).get(curLoc.get(1) + 1).get(curLoc.get(2));
                 System.out.println("East " + s);
                 s = s.substring(s.indexOf(":") + 1);
                 s = s.substring(0, s.indexOf(":")); 
                 System.out.println(s);           
                 if(s != "-"){
                     newLoc.add(this.location.get(curLoc.get(0)));
-                    newLoc.add(this.location.get(curLoc.get(1)));
+                    newLoc.add(this.location.get(curLoc.get(1)) + 1);
                     newLoc.add(this.location.get(curLoc.get(2)));
                     setLocation(newLoc);
                 }
 
             }
             if(schmo.potDir.get(i) == 4){
-                String s = map.get(curLoc.get(0)).get(curLoc.get(1)).get(curLoc.get(2) - 1);
+                String s = map.get(curLoc.get(0)).get(curLoc.get(1) - 1).get(curLoc.get(2));
                 System.out.println("West " + s);
                 s = s.substring(s.indexOf(":") + 1);
                 s = s.substring(0, s.indexOf(":"));
                 System.out.println(s);
                 if(s != "-"){
                     newLoc.add(this.location.get(curLoc.get(0)));
-                    newLoc.add(this.location.get(curLoc.get(1)));
+                    newLoc.add(this.location.get(curLoc.get(1) - 1));
                     newLoc.add(this.location.get(curLoc.get(2)));
                     setLocation(newLoc);
                 }
             }
         }
-
-
-
-
-        
-        //if adventurer is in that room move there
-        //check if adventurer is north, south, east, or west
-
-        
     }
 }
 
@@ -708,17 +876,27 @@ class Blinkers extends Creature{
 
 class Fight{
     Fight(Adventurer a, Creature c){
-        RollDie advRD = new RollDie();
-        RollDie creRD = new RollDie();
+        int adv = a.fight();
+        int cre = c.fight();
 
-        if(advRD.val1 + advRD.val2 > creRD.val1 + creRD.val2){
-            
-        }
-        else if(advRD.val1 + advRD.val2 < creRD.val1 + creRD.val2){
-
-        }
-        else{
-            
+        if(adv != -1){
+            if(adv > cre){
+                c.changeHp(c.hp-1);
+                System.out.println();
+                System.out.println(a.getName() + " rolled a " + adv + " and has beat " + c.getName() + " who rolled a " + cre);
+                System.out.println();
+            }
+            else if(adv < cre){
+                a.changeHp(a.hp-1);
+                System.out.println();
+                System.out.println(a.getName() + " rolled a " + adv + " and has lost to " + c.getName() + " who rolled a " + cre);
+                System.out.println();
+            }
+            else{
+                System.out.println();
+                System.out.println(a.getName() + " rolled a " + adv + " and has tied " + c.getName() + " who rolled a " + cre);
+                System.out.println();
+            }
         }
     }
 }
@@ -769,12 +947,12 @@ class Schmoovement{
         }
     }
     void canUp(int z){
-        if(z != 3){
+        if(z != 4 && x == 1 && y == 1){
             potDir.add(5);
         }
     }
     void canDown(int z){
-        if(z != 0){
+        if(z != 0 && x == 1 && y == 1){
             potDir.add(6);
         }
     }
@@ -788,5 +966,49 @@ class RollDie{
         Random r = new Random();
         val1 = r.nextInt(6) + 1;
         val2 = r.nextInt(6) + 1;
+    }
+}
+
+class TotalTreasure{
+    int treasure;
+    Boolean gameOver;
+
+    TotalTreasure(){
+        treasure = 0;
+        gameOver = false;
+    }
+    int numTreasure(){
+        return treasure;
+    }
+    Boolean addTreasure(){
+        treasure += 1;
+        if(treasure >= 10){
+            System.out.println("All Treasure has been found");
+            System.out.println();
+            gameOver = true;
+        }
+        return gameOver;
+    }
+}
+
+class checkAllDeadAdv{
+    Boolean areTheyDead(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t){
+        if(b.isAlive == true || sneak.isAlive == true || r.isAlive == true || t.isAlive == true){
+            return false;
+        }
+        System.out.println("All adventureres are dead");
+        System.out.println();
+        return true;
+    }
+}
+
+class checkAllDeadCre{
+    Boolean areTheyDead(Creature o, Creature see, Creature blink){
+        if(o.isAlive == true || see.isAlive == true || blink.isAlive == true){
+            return false;
+        }
+        System.out.println("All creatures are dead");
+        System.out.println();
+        return true;
     }
 }

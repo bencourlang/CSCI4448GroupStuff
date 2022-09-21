@@ -1,6 +1,16 @@
 import java.util.*;
 import java.util.Random;
 
+/*TODO
+
+1. Fix map x and y switching randomly
+2. Fix seekers movement (problem most likely has to do with map bugging)
+3. Move Adventurers then move Creatures ********
+4. Add Runners special ability *********
+5. If adv in room cre dont move *********
+
+*/
+
 public class RotLA{
     public static void main(String[] args){
         System.out.println();
@@ -19,6 +29,8 @@ public class RotLA{
 
         checkAllDeadAdv cada = new checkAllDeadAdv();
         checkAllDeadCre cadc = new checkAllDeadCre();
+
+        SameRoom sr = new SameRoom();
         
         ArrayList<ArrayList<ArrayList<String>>> map = f.makeRooms();
 
@@ -51,21 +63,38 @@ public class RotLA{
             System.out.println();
         }*/
 
-        System.out.println(tt.numTreasure());
+        //System.out.println(tt.numTreasure());
+
+        int count = 0;
 
         
 
         while(!gameOver){
-            f.updateRooms(b, sneak, r, t, o, see, blink, map, tt);
+            System.out.println("********************* " + count + " *********************");
+            System.out.println();
+            count++;
+
+            //f.updateRooms(b, sneak, r, t, o, see, blink, map, tt);
+
+            f.updateAdv(b, sneak, r, t, o, see, blink, map, tt);
+            f.updateCre(b, sneak, r, t, o, see, blink, map, tt);
 
             b.move(map);
             sneak.move(map);
             r.move(map);
+
+            r.runnerTurnTwo(b, sneak, r, t, o, see, blink, map, tt);
+
+            r.move(map);
             t.move(map);
 
-            o.move(map);
+            sr.checkRoom(b, sneak, r, t, o, see, blink, map);
+
+            /*o.move(map);
             blink.move(map);
-            //see.move(map);
+            //see.move(map);*/
+
+            
     
             System.out.println();
 
@@ -139,7 +168,7 @@ class Facility{
         return map;
     }
 
-    ArrayList<ArrayList<ArrayList<String>>> updateRooms(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map, TotalTreasure tt){
+    /*ArrayList<ArrayList<ArrayList<String>>> updateRooms(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map, TotalTreasure tt){
         //Check if null
         //if null put -
         //if not null put name
@@ -207,12 +236,12 @@ class Facility{
                             //String temp = z + "-" + x + "-" + y + ": " + aliveAdv.get(i).getName() + " : -";
                             temp += creNames;
 
-                            /*if(names == ""){
-                                map.get(z).get(x).set(y, temp);
-                            }
-                            else{
-                                map.get(z).get(y).set(x, temp);
-                            }*/
+                            // if(names == ""){
+                            //     map.get(z).get(x).set(y, temp);
+                            // }
+                            // else{
+                            //     map.get(z).get(y).set(x, temp);
+                            // }
                             map.get(z).get(x).set(y, temp);
                         }
                     }
@@ -253,14 +282,14 @@ class Facility{
                             //String temp = z + "-" + x + "-" + y + ": " + aliveAdv.get(i).getName() + " : -";
                             temp += advNames;
 
-                            /*temp += ": " + names;
+                            // temp += ": " + names;
 
-                            if(names == ""){
-                                map.get(z).get(x).set(y, temp);
-                            }
-                            else{
-                                map.get(z).get(y).set(x, temp);
-                            }*/
+                            // if(names == ""){
+                            //     map.get(z).get(x).set(y, temp);
+                            // }
+                            // else{
+                            //     map.get(z).get(y).set(x, temp);
+                            // }
 
                             temp += ": " + names;
                             map.get(z).get(x).set(y, temp);
@@ -347,6 +376,190 @@ class Facility{
             //locs.add(aliveCre.get(i).getLocation());
         }*/ //                              ************* END *****************
 
+        /*for(int i = 0; i < map.size(); i++){
+            for(int j = 0; j < map.size()-2; j++){
+                System.out.println(map.get(i).get(j));
+            }
+            System.out.println();
+        }
+
+        return map;
+    }*/
+
+    ArrayList<ArrayList<ArrayList<String>>> updateAdv(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map, TotalTreasure tt){
+        //Check if null
+        //if null put -
+        //if not null put name
+        //if multiple in 1 room, adv on left cre on right
+        //check for mult adv and cre same room, do something if so
+
+        System.out.println("(********************* Adventure Move *********************");
+
+        ArrayList<Adventurer> aliveAdv = new ArrayList<>();
+
+        if(b.isAlive == true){
+            aliveAdv.add(b);
+        }
+        if(sneak.isAlive == true){
+            aliveAdv.add(sneak);
+        }
+        if(r.isAlive == true){
+            aliveAdv.add(r);
+        }
+        if(t.isAlive == true){
+            aliveAdv.add(t);
+        }
+
+        ArrayList<Creature> aliveCre = new ArrayList<>();
+        if(o.isAlive == true){
+            aliveCre.add(o);
+        }
+        if(see.isAlive == true){
+            aliveCre.add(see);
+        }
+        if(blink.isAlive == true){
+            aliveCre.add(blink);
+        }
+
+        for(int z = 0; z < 5; z++){
+            for(int x = 0; x < 3; x++){
+                for(int y = 0; y < 3; y++){
+                    for(int i = 0; i < aliveAdv.size(); i++){
+                        String names = "";
+
+                        for(int j = 0; j < aliveAdv.size(); j++){
+                            if(aliveAdv.get(i).getLocation().equals(aliveAdv.get(j).getLocation())){
+                                names += aliveAdv.get(j).getName() + " ";
+                            }
+                        }
+
+                        ArrayList<Integer> hold = new ArrayList<>();
+                        hold.add(z);
+                        hold.add(x);
+                        hold.add(y);
+                        if(aliveAdv.get(i).getLocation().equals(hold)){
+                            String temp = z + "-" + x + "-" + y + ": " + names + ": ";
+                            String creNames = "";
+                            for(int j = 0; j < aliveCre.size(); j++){
+                                if(aliveCre.get(j).getLocation().equals(hold)){
+                                    creNames += aliveCre.get(j).getName() + " ";
+                                }
+                            }
+                            if(creNames.equals("")){
+                                creNames = " -";
+                                aliveAdv.get(i).findTreasure(tt);
+                            }
+                            temp += creNames;
+
+                            map.get(z).get(x).set(y, temp);
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i = 0; i < map.size(); i++){
+            for(int j = 0; j < map.size()-2; j++){
+                System.out.println(map.get(i).get(j));
+            }
+            System.out.println();
+        }
+
+        return map;
+    }
+
+    ArrayList<ArrayList<ArrayList<String>>> updateCre(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map, TotalTreasure tt){
+        //Check if null
+        //if null put -
+        //if not null put name
+        //if multiple in 1 room, adv on left cre on right
+        //check for mult adv and cre same room, do something if so
+
+        System.out.println("********************* Creature Move *********************");
+
+        ArrayList<Adventurer> aliveAdv = new ArrayList<>();
+
+        if(b.isAlive == true){
+            aliveAdv.add(b);
+        }
+        if(sneak.isAlive == true){
+            aliveAdv.add(sneak);
+        }
+        if(r.isAlive == true){
+            aliveAdv.add(r);
+        }
+        if(t.isAlive == true){
+            aliveAdv.add(t);
+        }
+
+        ArrayList<Creature> aliveCre = new ArrayList<>();
+        if(o.isAlive == true){
+            aliveCre.add(o);
+        }
+        if(see.isAlive == true){
+            aliveCre.add(see);
+        }
+        if(blink.isAlive == true){
+            aliveCre.add(blink);
+        }
+
+        for(int z = 0; z < 5; z++){
+            for(int x = 0; x < 3; x++){
+                for(int y = 0; y < 3; y++){
+                    for(int i = 0; i < aliveCre.size(); i++){
+                        //ArrayList<Adventurer> addAdv = new ArrayList<>();
+                        //String names = aliveAdv.get(i).getName();
+                        String names = "";
+
+                        for(int j = 0; j < aliveCre.size(); j++){
+                            if(aliveCre.get(i).getLocation().equals(aliveCre.get(j).getLocation())){
+                                //addAdv.add(aliveAdv.get(j));
+                                names += aliveCre.get(j).getName() + " ";
+                            }
+                        }
+
+                        ArrayList<Integer> hold = new ArrayList<>();
+                        hold.add(z);
+                        hold.add(x);
+                        hold.add(y);
+                        if(aliveCre.get(i).getLocation().equals(hold)){
+                            String temp = z + "-" + x + "-" + y + ": " + names + ": -";
+                            map.get(z).get(x).set(y, temp);
+                        }
+                        if(aliveCre.get(i).getLocation().equals(hold)){
+                            //String temp = z + "-" + x + "-" + y + ": " + names + ": ";
+                            String temp = z + "-" + x + "-" + y + ": ";
+                            //String temp = z + "-" + y + "-" + x + ": ";
+                            String advNames = "";
+                            for(int j = 0; j < aliveAdv.size(); j++){
+                                if(aliveAdv.get(j).getLocation().equals(hold)){
+                                    Fight f = new Fight(aliveAdv.get(j), aliveCre.get(i));
+                                    advNames += aliveAdv.get(j).getName() + " ";
+                                }
+                            }
+                            if(advNames.equals("")){
+                                advNames = " - ";
+                            }
+                            //String temp = z + "-" + x + "-" + y + ": " + aliveAdv.get(i).getName() + " : -";
+                            temp += advNames;
+
+                            // temp += ": " + names;
+
+                            // if(names == ""){
+                            //     map.get(z).get(x).set(y, temp);
+                            // }
+                            // else{
+                            //     map.get(z).get(y).set(x, temp);
+                            // }
+
+                            temp += ": " + names;
+                            map.get(z).get(x).set(y, temp);
+                        }
+                    }
+                    //System.out.println(map.get(z).get(x).get(y));
+                }
+            }
+        }
         for(int i = 0; i < map.size(); i++){
             for(int j = 0; j < map.size()-2; j++){
                 System.out.println(map.get(i).get(j));
@@ -357,6 +570,8 @@ class Facility{
         return map;
     }
 }
+
+
 
 abstract class Adventurer{
     int hp;
@@ -402,6 +617,10 @@ abstract class Adventurer{
         }
         //roll 2 die 
         //if above 10, they get a treasure (treasure +=1)
+    }
+
+    ArrayList<ArrayList<ArrayList<String>>> runnerTurnTwo(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map, TotalTreasure tt){
+        return map;
     }
 
     void changeHp(int newHp){
@@ -532,10 +751,99 @@ class Sneakers extends Adventurer{
 }
 
 class Runners extends Adventurer{
+    Boolean tookTurn;
+
     Runners(){
         name = "R";
+        tookTurn = false;
     }
-    boolean tookTurn = false;
+
+    @Override
+    ArrayList<ArrayList<ArrayList<String>>> runnerTurnTwo(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map, TotalTreasure tt){
+        //Check if null
+        //if null put -
+        //if not null put name
+        //if multiple in 1 room, adv on left cre on right
+        //check for mult adv and cre same room, do something if so
+
+        System.out.println("****************** Runner Turn 2 ******************");
+        System.out.println("");
+
+        ArrayList<Adventurer> aliveAdv = new ArrayList<>();
+
+        if(b.isAlive == true){
+            aliveAdv.add(b);
+        }
+        if(sneak.isAlive == true){
+            aliveAdv.add(sneak);
+        }
+        if(r.isAlive == true){
+            aliveAdv.add(r);
+        }
+        if(t.isAlive == true){
+            aliveAdv.add(t);
+        }
+
+        ArrayList<Creature> aliveCre = new ArrayList<>();
+        if(o.isAlive == true){
+            aliveCre.add(o);
+        }
+        if(see.isAlive == true){
+            aliveCre.add(see);
+        }
+        if(blink.isAlive == true){
+            aliveCre.add(blink);
+        }
+
+        for(int z = 0; z < 5; z++){
+            for(int x = 0; x < 3; x++){
+                for(int y = 0; y < 3; y++){
+                    for(int i = 0; i < aliveAdv.size(); i++){
+                        String names = "";
+
+                        for(int j = 0; j < aliveAdv.size(); j++){
+                            if(aliveAdv.get(i).getLocation().equals(aliveAdv.get(j).getLocation())){
+                                names += aliveAdv.get(j).getName() + " ";
+                            }
+                        }
+
+                        ArrayList<Integer> hold = new ArrayList<>();
+                        hold.add(z);
+                        hold.add(x);
+                        hold.add(y);
+                        if(aliveAdv.get(i).getLocation().equals(hold)){
+                            String temp = z + "-" + x + "-" + y + ": " + names + ": ";
+                            String creNames = "";
+                            for(int j = 0; j < aliveCre.size(); j++){
+                                if(aliveCre.get(j).getLocation().equals(hold)){
+                                    creNames += aliveCre.get(j).getName() + " ";
+                                }
+                            }
+                            if(creNames.equals("")){
+                                creNames = " -";
+                                if(aliveAdv.get(i).getName() == "r"){
+                                    aliveAdv.get(i).findTreasure(tt);
+                                }
+                            }
+                            temp += creNames;
+
+                            map.get(z).get(x).set(y, temp);
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i = 0; i < map.size(); i++){
+            for(int j = 0; j < map.size()-2; j++){
+                System.out.println(map.get(i).get(j));
+            }
+            System.out.println();
+        }
+
+        return map;
+    }
+    
     //take a turn if they move 
 
 }
@@ -608,6 +916,13 @@ abstract class Creature{
     
     void move(ArrayList<ArrayList<ArrayList<String>>> map){
         //System.out.println("hmmm");
+    }
+
+    Boolean sameRoomAdv(ArrayList<Integer> loc){
+        if(location.equals(loc)){
+            return true;
+        }
+        return false;
     }
 }
 
@@ -1010,5 +1325,53 @@ class checkAllDeadCre{
         System.out.println("All creatures are dead");
         System.out.println();
         return true;
+    }
+}
+
+class SameRoom{
+    ArrayList<ArrayList<ArrayList<String>>> checkRoom(Adventurer b, Adventurer sneak, Adventurer r, Adventurer t, Creature o, Creature see, Creature blink, ArrayList<ArrayList<ArrayList<String>>> map){
+        Boolean sr = false;
+        
+        ArrayList<Adventurer> aliveAdv = new ArrayList<>();
+        if(b.isAlive == true){
+            aliveAdv.add(b);
+        }
+        if(sneak.isAlive == true){
+            aliveAdv.add(sneak);
+        }
+        if(r.isAlive == true){
+            aliveAdv.add(r);
+        }
+        if(t.isAlive == true){
+            aliveAdv.add(t);
+        }
+
+        ArrayList<Creature> aliveCre = new ArrayList<>();
+        if(o.isAlive == true){
+            aliveCre.add(o);
+        }
+        if(see.isAlive == true){
+            aliveCre.add(see);
+        }
+        if(blink.isAlive == true){
+            aliveCre.add(blink);
+        }
+        
+        for(int i = 0; i < aliveCre.size(); i++){
+            for(int j = 0; j < aliveAdv.size(); j++){
+                if(aliveCre.get(i).sameRoomAdv(aliveAdv.get(j).getLocation())){
+                    Fight f = new Fight(aliveAdv.get(j), aliveCre.get(i));
+                    
+                    sr = true;
+                }
+            }
+            if(sr != true){
+                //System.out.println(aliveCre.get(i).getName());
+                if(!aliveCre.get(i).getName().equals("SE")){
+                    aliveCre.get(i).move(map);
+                }
+            }
+        }
+        return map;
     }
 }

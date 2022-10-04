@@ -21,6 +21,20 @@ public class OneDoc {
     }
 }
 
+interface CombatStrategy {
+    public void Stealth();
+    public void Untrained();
+    public void Trained();
+    public void Expert();
+}
+
+
+interface SearchStrategy {
+    void Careful();
+    void Quick();
+    void Careless();
+}
+
 // The engine drives game turns and also has some utility functions used during turns
 // This is where instantiated rooms, adventurers, and creatures are kept
 
@@ -60,15 +74,21 @@ class Engine implements Logger {
         rooms = Room.CreateAllRooms();
 
         // create the adventurers (I'm doing two Runners and two Thieves)
-        for(int i=1; i<=2; i++) {
+        /*for(int i=1; i<=2; i++) {
             adventurers.add(new Runner("Runner "+i,Room.GetRoomByName(rooms,"011")));
             adventurers.add(new Thief("Thief "+i,Room.GetRoomByName(rooms,"011")));
-        }
+        }*/
+
+        adventurers.add(new Runner("Runner",Room.GetRoomByName(rooms,"011")));
+        adventurers.add(new Thief("Thief",Room.GetRoomByName(rooms,"011")));
+        adventurers.add(new Brawler("Brawler",Room.GetRoomByName(rooms,"011")));
+        adventurers.add(new Sneaker("Sneaker",Room.GetRoomByName(rooms,"011")));
 
         // create the creatures (I'm only making Orbiters and Seekers, so I'll do 6 of each)
-        for(int i=1; i<=6; i++) {
+        for(int i=1; i<=4; i++) {
             creatures.add(new Orbiter("Orbiter "+i, rooms));
             creatures.add(new Seeker( "Seeker "+i, rooms));
+            creatures.add(new Blinker( "Blinker "+i, rooms));
         }
 
         //*************************************** Stuff I added ***************************************
@@ -218,61 +238,65 @@ class Engine implements Logger {
         while (itr_t.hasNext()) {
             Treasure tre = itr_t.next();
             if(tre.location.name == a.location.name){
-                if(tre.type == "trap"){
-                    out(a.name + " took damage from a trap");
-                    a.hitPoints -= 1;
-                }
-                else if(tre.type== "sword"){
-                    if(a.sword == false){
-                        a.sword = true;
-                        a.modifier += 1;
-                        out(a.name + " finds treasure " + tre.name);
-                        itr_t.remove();
-                        spot = true;
-                        break;
+                if(a.skipSearch <= Random.rnd()){
+                    if(tre.type == "trap"){
+                        if(a.noTrapProb <= Random.rnd()){
+                            out(a.name + " took damage from a trap");
+                            a.hitPoints -= 1;
+                        }
                     }
-                }
-                else if(tre.type == "gem"){
-                    if(a.gem == false){
-                        a.gem = true;
-                        //maybe cheating
-                        a.modifier -= 1;
-                        //end cheating
-                        out(a.name + " finds treasure " + tre.name);
-                        itr_t.remove();
-                        spot = true;
-                        break;
+                    else if(tre.type== "sword"){                        
+                        if(a.sword == false){
+                            a.sword = true;
+                            a.modifier += 1;
+                            out(a.name + " finds treasure " + tre.name);
+                            itr_t.remove();
+                            spot = true;
+                            break;
+                        }
                     }
-                }
-                else if(tre.type == "armor"){
-                    if(a.armor == false){
-                        a.armor = true;
-                        //maybe cheating
-                        a.modifier += 1;
-                        //end cheating
-                        out(a.name + " finds treasure " + tre.name);
-                        itr_t.remove();
-                        spot = true;
-                        break;
+                    else if(tre.type == "gem"){
+                        if(a.gem == false){
+                            a.gem = true;
+                            //maybe cheating
+                            a.modifier -= 1;
+                            //end cheating
+                            out(a.name + " finds treasure " + tre.name);
+                            itr_t.remove();
+                            spot = true;
+                            break;
+                        }
                     }
-                }
-                else if(tre.type == "portal"){
-                    if(a.portal == false){
-                        a.portal = true;
-                        out(a.name + " finds treasure " + tre.name);
-                        itr_t.remove();
-                        spot = true;
-                        break;
+                    else if(tre.type == "armor"){
+                        if(a.armor == false){
+                            a.armor = true;
+                            //maybe cheating
+                            a.modifier += 1;
+                            //end cheating
+                            out(a.name + " finds treasure " + tre.name);
+                            itr_t.remove();
+                            spot = true;
+                            break;
+                        }
                     }
-                }
-                else if(tre.type == "potion"){
-                    if(a.potion == false){
-                        a.potion = true;
-                        a.hitPoints += 1;
-                        out(a.name + " finds treasure " + tre.name);
-                        itr_t.remove();
-                        spot = true;
-                        break;
+                    else if(tre.type == "portal"){
+                        if(a.portal == false){
+                            a.portal = true;
+                            out(a.name + " finds treasure " + tre.name);
+                            itr_t.remove();
+                            spot = true;
+                            break;
+                        }
+                    }
+                    else if(tre.type == "potion"){
+                        if(a.potion == false){
+                            a.potion = true;
+                            a.hitPoints += 1;
+                            out(a.name + " finds treasure " + tre.name);
+                            itr_t.remove();
+                            spot = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -288,7 +312,7 @@ interface Logger {
     }
 }
 
-abstract class Adventurer implements Logger {
+abstract class Adventurer implements Logger{
     String name;
     Room location;
     AdventurerType type;
@@ -302,6 +326,14 @@ abstract class Adventurer implements Logger {
     Boolean potion;
 
     Integer modifier;
+
+    CombatStrategy cs;
+    double noCombatProb;
+
+    SearchStrategy ss;
+    int searchNum;
+    double skipSearch;
+    double noTrapProb;
     //*************************************** End of stuff I added ***************************************
 
     public Adventurer(String name, Room location) {
@@ -318,6 +350,10 @@ abstract class Adventurer implements Logger {
         this.potion = false;
 
         this.modifier = 0;
+        this.noCombatProb = 0;
+        this.searchNum = 10;
+        this.skipSearch = 0;
+        this.noTrapProb = 0;
         //*************************************** End of stuff I added ***************************************
     }
 
@@ -356,34 +392,78 @@ abstract class Adventurer implements Logger {
     }
 
     void FightCreature(ArrayList<Creature> creatures, int modifier) {
-        for (Creature c: creatures) {
-            // be sure no-one that's at 0 hitpoints is fighting
-            if ((hitPoints>0) && (c.hitPoints>0)) {
-                // make combat rolls
-                int advRoll = Random.RollTwoDice() + modifier;
-                int creRoll = Random.RollTwoDice();
-                // announce results and update affected character hitpoints
-                if (advRoll > creRoll) {
-                    out(name + " defeats " + c.name);
-                    c.hitPoints -= 1;
-                }
-                if (advRoll < creRoll) {
-                    out(c.name + " defeats " + name);
-                    hitPoints -= 1;
-                }
-                if (advRoll == creRoll) {
-                    out(c.name + " fights " + name + " to a draw");
+        if(noCombatProb <= Random.rnd()){
+            for (Creature c: creatures) {
+                // be sure no-one that's at 0 hitpoints is fighting
+                if ((hitPoints>0) && (c.hitPoints>0)) {
+                    // make combat rolls
+                    int advRoll = Random.RollTwoDice() + modifier;
+                    int creRoll = Random.RollTwoDice();
+                    // announce results and update affected character hitpoints
+                    if (advRoll > creRoll) {
+                        out(name + " defeats " + c.name);
+                        c.hitPoints -= 1;
+                    }
+                    if (advRoll < creRoll) {
+                        out(c.name + " defeats " + name);
+                        hitPoints -= 1;
+                    }
+                    if (advRoll == creRoll) {
+                        out(c.name + " fights " + name + " to a draw");
+                    }
                 }
             }
         }
     }
+    //*************************************** Stuff I added ***************************************
+    public class CombStrat implements CombatStrategy{
+        @Override
+        public void Stealth(){
+            modifier = 0;
+            noCombatProb = 0.5;
+        }
+        @Override
+        public void Untrained(){
+            modifier = 0;
+        }
+        @Override
+        public void Trained(){
+            modifier = 1;
+        }
+        @Override
+        public void Expert(){
+            modifier = 2;
+        }
+    }
+
+    class SearchStrat implements SearchStrategy{
+        @Override 
+        public void Careful(){
+            searchNum = 7;
+            //on teasure 50% chance to dodge
+            noTrapProb = 0.5;
+        }
+        @Override 
+        public void Quick(){
+            searchNum = 9;
+            skipSearch = 0.67;
+        }
+        @Override 
+        public void Careless(){
+            searchNum = 10;
+        }
+    }
 }
+    //*************************************** End of stuff I added ***************************************
+
 
 // Only implementing Runners and Thieves, Brawlers and Sneakers are left as an exercise to the reader :-)
 // I do this to avoid parsing output from getclass() and to be clear about what object I'm talking to
 enum AdventurerType {
     RUNNER,
     THIEF,
+    BRAWLER,
+    SNEAKER,
     NONE;
     private AdventurerType() {
     }
@@ -395,22 +475,27 @@ class Runner extends Adventurer {
     public Runner(String name, Room location) {
         super(name, location);
         type = AdventurerType.RUNNER;
+
+        this.cs = new CombStrat();
+        cs.Untrained();
+
+        this.ss = new SearchStrat();
+        ss.Quick();
     }
     @Override
     void fight(ArrayList<Creature> creatures) {
         //super.FightCreature(creatures, 0);
 
         //*************************************** Stuff I added ***************************************
-        super.FightCreature(creatures, this.modifier);
+        super.FightCreature(creatures, modifier);
         //*************************************** End of stuff I added ***************************************
     };
     @Override
     boolean search() {
         //*************************************** Stuff I added ***************************************
-
         //*************************************** End of stuff I added ***************************************
         
-        return (Random.RollTwoDice()>=10); // true if 10 or better roll
+        return (Random.RollTwoDice() >= searchNum); // true if 10 or better roll
     };
 }
 
@@ -418,14 +503,62 @@ class Thief extends Adventurer {
     public Thief(String name, Room location) {
         super(name, location);
         type = AdventurerType.THIEF;
+
+        this.cs = new CombStrat();
+        cs.Trained();
+
+        this.ss = new SearchStrat();
+        ss.Careful();
     }
     @Override
     void fight(ArrayList<Creature> creatures) {
-        super.FightCreature(creatures, 1);
+        super.FightCreature(creatures, modifier);
     };
     @Override
     boolean search() {
-        return ((Random.RollTwoDice()+1)>=10); // true if 10 or better roll with +1 modifier
+        return ((Random.RollTwoDice()+1) >= searchNum); // true if 10 or better roll with +1 modifier
+    };
+}
+
+class Brawler extends Adventurer{
+    public Brawler(String name, Room location){
+        super(name, location);
+        type = AdventurerType.BRAWLER;
+
+        this.cs = new CombStrat();
+        cs.Expert();
+
+        this.ss = new SearchStrat();
+        ss.Careless();
+    }
+    @Override
+    void fight(ArrayList<Creature> creatures) {
+        super.FightCreature(creatures, modifier);
+    };
+    @Override
+    boolean search() {
+        return ((Random.RollTwoDice()) >= searchNum); // true if 10 or better roll with +1 modifier
+    };
+}
+
+class Sneaker extends Adventurer{
+    public Sneaker(String name, Room location){
+        super(name, location);
+        type = AdventurerType.BRAWLER;
+
+        this.cs = new CombStrat();
+        cs.Stealth();
+
+        this.ss = new SearchStrat();
+        ss.Quick();
+    }
+    @Override
+    void fight(ArrayList<Creature> creatures) {
+        super.FightCreature(creatures, modifier);
+    };
+    @Override
+    boolean search() {
+        return ((Random.RollTwoDice()) >= searchNum); // true if 10 or better roll with +1 modifier
     };
 }
 
@@ -492,6 +625,22 @@ class Seeker extends Creature {
                 }
             }
         }
+    }
+}
+
+class Blinker extends Creature {
+    public Blinker(String name, ArrayList<Room> rooms) {
+        super(name, rooms);
+        location = Room.GetRandomRoom(rooms, false);
+        while(location.name.charAt(0) != '4')
+        {
+            location = Room.GetRandomRoom(rooms, false);
+        } 
+    }
+
+    @Override
+    void move(ArrayList<Room> rooms, ArrayList<Adventurer> adventurers) {
+        this.location = Room.GetRandomRoom(rooms, false);
     }
 }
 
@@ -790,3 +939,4 @@ class Potion extends Treasure{
         type = "potion";
     }
 }
+

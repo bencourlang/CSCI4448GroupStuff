@@ -219,11 +219,13 @@ class Engine implements Logger {
             Treasure tre = itr_t.next();
             if(tre.location.name == a.location.name){
                 if(tre.type == "trap"){
+                    out(a.name + " took damage from a trap");
                     a.hitPoints -= 1;
                 }
                 else if(tre.type== "sword"){
                     if(a.sword == false){
                         a.sword = true;
+                        a.modifier += 1;
                         out(a.name + " finds treasure " + tre.name);
                         itr_t.remove();
                         spot = true;
@@ -233,6 +235,9 @@ class Engine implements Logger {
                 else if(tre.type == "gem"){
                     if(a.gem == false){
                         a.gem = true;
+                        //maybe cheating
+                        a.modifier -= 1;
+                        //end cheating
                         out(a.name + " finds treasure " + tre.name);
                         itr_t.remove();
                         spot = true;
@@ -242,6 +247,9 @@ class Engine implements Logger {
                 else if(tre.type == "armor"){
                     if(a.armor == false){
                         a.armor = true;
+                        //maybe cheating
+                        a.modifier += 1;
+                        //end cheating
                         out(a.name + " finds treasure " + tre.name);
                         itr_t.remove();
                         spot = true;
@@ -260,6 +268,7 @@ class Engine implements Logger {
                 else if(tre.type == "potion"){
                     if(a.potion == false){
                         a.potion = true;
+                        a.hitPoints += 1;
                         out(a.name + " finds treasure " + tre.name);
                         itr_t.remove();
                         spot = true;
@@ -317,11 +326,33 @@ abstract class Adventurer implements Logger {
 
     // default movement
     void move(ArrayList<Room> rooms) {
+        //*************************************** Stuff I added **********************************************
+        if(this.portal == true){
+            if(Random.rndFromRange(0, 1) == 0){
+                this.location = Room.GetRandomRoom(rooms, false);
+                out(name+" moves to "+location.toString());
+            }
+            else if(Random.rndFromRange(0, 1) == 1){
+                //out("no portal");
+                int roomCount = location.connectedRooms.size();
+                int roomChoice = Random.rndFromRange(0,roomCount-1);
+                location = location.connectedRooms.get(roomChoice);
+                out(name+" moves to "+location.toString());
+            }
+        }
+        else{
+            int roomCount = location.connectedRooms.size();
+            int roomChoice = Random.rndFromRange(0,roomCount-1);
+            location = location.connectedRooms.get(roomChoice);
+            out(name+" moves to "+location.toString());
+        }
+        //*************************************** End of stuff I added ***************************************
+
         // What rooms are connected to mine?  Randomly pick one to move to
-        int roomCount = location.connectedRooms.size();
+        /*int roomCount = location.connectedRooms.size();
         int roomChoice = Random.rndFromRange(0,roomCount-1);
         location = location.connectedRooms.get(roomChoice);
-        out(name+" moves to "+location.toString());
+        out(name+" moves to "+location.toString());*/
     }
 
     void FightCreature(ArrayList<Creature> creatures, int modifier) {
@@ -717,6 +748,7 @@ class Sword extends Treasure{
         location = Room.GetRandomRoom(rooms, false);
         type = "sword";
     }
+    //this.modifier += 1;
 }
 
 class Gem extends Treasure{

@@ -21,19 +21,72 @@ public class OneDoc {
     }
 }
 
-interface CombatStrategy {
+interface CombatStrategy{
     public void Stealth();
     public void Untrained();
     public void Trained();
     public void Expert();
 }
 
-
 interface SearchStrategy {
     void Careful();
     void Quick();
     void Careless();
 }
+
+interface CombatDecorator{
+    String Shout();
+    String Dance();
+    String Jump();
+    String Spin();
+}
+
+class Decorate implements CombatDecorator{
+    @Override
+    public String Shout(){
+        return "shout ";
+    }
+    @Override
+    public String Dance(){
+        return "dance ";
+    }
+    @Override
+    public String Jump(){
+        return "jump ";
+    }
+    @Override
+    public String Spin(){
+        return "spin ";
+    }
+}
+
+abstract class Celebrate implements CombatDecorator{
+    // Protected variable
+    protected CombatDecorator celebration;
+ 
+    // Abstract class method
+    public Celebrate(CombatDecorator celebration){
+        // This keywordd refers to current object itself
+        this.celebration = celebration;
+        System.out.println(this.celebration);
+    }
+ 
+    // Outside abstract class
+    public String Shout() {
+        return(celebration.Shout());
+    }
+    public String Dance() {
+        return(celebration.Dance());
+    }
+    public String Jump() {
+        return(celebration.Jump());
+    }
+    public String Spin() {
+        return(celebration.Spin());
+    }
+}
+
+
 
 // The engine drives game turns and also has some utility functions used during turns
 // This is where instantiated rooms, adventurers, and creatures are kept
@@ -46,6 +99,9 @@ class Engine implements Logger {
     ArrayList<Creature> exCreatures;      // Not sure I need to really...
 
     //Stuff I added
+    CombatDecorator celebration = new Decorate();
+    //Celebrate celebration;
+    
     ArrayList<Treasure> treasures;
     //End of stuff I added
 
@@ -79,10 +135,10 @@ class Engine implements Logger {
             adventurers.add(new Thief("Thief "+i,Room.GetRoomByName(rooms,"011")));
         }*/
 
-        adventurers.add(new Runner("Runner",Room.GetRoomByName(rooms,"011")));
-        adventurers.add(new Thief("Thief",Room.GetRoomByName(rooms,"011")));
-        adventurers.add(new Brawler("Brawler",Room.GetRoomByName(rooms,"011")));
-        adventurers.add(new Sneaker("Sneaker",Room.GetRoomByName(rooms,"011")));
+        adventurers.add(new Runner("Runner",Room.GetRoomByName(rooms,"011"), celebration));
+        adventurers.add(new Thief("Thief",Room.GetRoomByName(rooms,"011"), celebration));
+        adventurers.add(new Brawler("Brawler",Room.GetRoomByName(rooms,"011"), celebration));
+        adventurers.add(new Sneaker("Sneaker",Room.GetRoomByName(rooms,"011"), celebration));
 
         // create the creatures (I'm only making Orbiters and Seekers, so I'll do 6 of each)
         for(int i=1; i<=4; i++) {
@@ -312,11 +368,12 @@ interface Logger {
     }
 }
 
-abstract class Adventurer implements Logger{
+abstract class Adventurer extends Celebrate implements Logger{
     String name;
     Room location;
     AdventurerType type;
     Integer hitPoints;
+
 
     //*************************************** Stuff I added ***************************************
     Boolean sword;
@@ -336,7 +393,9 @@ abstract class Adventurer implements Logger{
     double noTrapProb;
     //*************************************** End of stuff I added ***************************************
 
-    public Adventurer(String name, Room location) {
+    public Adventurer(String name, Room location, CombatDecorator celebration) {
+        super(celebration);
+        
         this.name = name;
         this.location = location;
         this.type = AdventurerType.NONE;
@@ -359,6 +418,23 @@ abstract class Adventurer implements Logger{
 
     abstract void fight(ArrayList<Creature> creatures);
     abstract boolean search();
+
+    @Override
+    public String Shout(){
+        return super.Shout();
+    }
+    @Override
+    public String Dance(){
+        return super.Dance();
+    }
+    @Override
+    public String Jump(){
+        return super.Jump();
+    }
+    @Override
+    public String Spin(){
+        return super.Spin();
+    }
 
     // default movement
     void move(ArrayList<Room> rooms) {
@@ -403,6 +479,23 @@ abstract class Adventurer implements Logger{
                     if (advRoll > creRoll) {
                         out(name + " defeats " + c.name);
                         c.hitPoints -= 1;
+
+                        String cel = "";
+
+                        for(int i = 0; i < Random.rndFromRange(0, 2); i++){
+                            cel += celebration.Shout();
+                        }
+                        for(int i = 0; i < Random.rndFromRange(0, 2); i++){
+                            cel += celebration.Dance();
+                        }
+                        for(int i = 0; i < Random.rndFromRange(0, 2); i++){
+                            cel += celebration.Jump();
+                        }
+                        for(int i = 0; i < Random.rndFromRange(0, 2); i++){
+                            cel += celebration.Spin();
+                        }
+                        
+                        out(this.name + " celebrates: " + cel);
                     }
                     if (advRoll < creRoll) {
                         out(c.name + " defeats " + name);
@@ -472,8 +565,8 @@ enum AdventurerType {
 // the subclasses are very similar, but using them prevents me from having to make
 // conditional checks on calling variations of methods
 class Runner extends Adventurer {
-    public Runner(String name, Room location) {
-        super(name, location);
+    public Runner(String name, Room location, CombatDecorator celebration) {
+        super(name, location, celebration);
         type = AdventurerType.RUNNER;
 
         this.cs = new CombStrat();
@@ -500,8 +593,8 @@ class Runner extends Adventurer {
 }
 
 class Thief extends Adventurer {
-    public Thief(String name, Room location) {
-        super(name, location);
+    public Thief(String name, Room location, CombatDecorator celebration) {
+        super(name, location, celebration);
         type = AdventurerType.THIEF;
 
         this.cs = new CombStrat();
@@ -521,8 +614,8 @@ class Thief extends Adventurer {
 }
 
 class Brawler extends Adventurer{
-    public Brawler(String name, Room location){
-        super(name, location);
+    public Brawler(String name, Room location, CombatDecorator celebration){
+        super(name, location, celebration);
         type = AdventurerType.BRAWLER;
 
         this.cs = new CombStrat();
@@ -542,8 +635,8 @@ class Brawler extends Adventurer{
 }
 
 class Sneaker extends Adventurer{
-    public Sneaker(String name, Room location){
-        super(name, location);
+    public Sneaker(String name, Room location, CombatDecorator celebration){
+        super(name, location, celebration);
         type = AdventurerType.BRAWLER;
 
         this.cs = new CombStrat();
@@ -939,4 +1032,3 @@ class Potion extends Treasure{
         type = "potion";
     }
 }
-

@@ -1,0 +1,9 @@
+---Tracker: Turn 12 ---
+
+Total Active Adventurers: 1
+Adventurers        Room        Damage        Treasure
+Thief        1-0-1        2        Sword Armor Gem 
+
+Total Active Creatures: 7
+
+Creatures        Room

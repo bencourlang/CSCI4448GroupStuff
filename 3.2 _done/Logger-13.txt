@@ -1,0 +1,8 @@
+---Tracker: Turn 13 ---
+
+Total Active Adventurers: 0
+Adventurers        Room        Damage        Treasure
+
+Total Active Creatures: 7
+
+Creatures        Room

@@ -1,0 +1,12 @@
+---Tracker: Turn 1 ---
+
+Total Active Adventurers: 4
+Adventurers        Room        Damage        Treasure
+Runner        2-1-1        1        
+Thief        1-1-1        0        Sword 
+Brawler        1-1-1        1        
+Sneaker        1-1-1        1        
+
+Total Active Creatures: 12
+
+Creatures        Room

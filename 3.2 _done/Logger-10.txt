@@ -1,0 +1,10 @@
+---Tracker: Turn 10 ---
+
+Total Active Adventurers: 2
+Adventurers        Room        Damage        Treasure
+Thief        1-1-0        2        Sword Gem 
+Sneaker        2-2-0        1        
+
+Total Active Creatures: 7
+
+Creatures        Room

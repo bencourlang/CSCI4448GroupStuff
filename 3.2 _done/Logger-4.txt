@@ -1,0 +1,11 @@
+---Tracker: Turn 4 ---
+
+Total Active Adventurers: 3
+Adventurers        Room        Damage        Treasure
+Thief        1-1-0        0        Sword 
+Brawler        1-1-0        2        
+Sneaker        2-2-1        1        
+
+Total Active Creatures: 9
+
+Creatures        Room

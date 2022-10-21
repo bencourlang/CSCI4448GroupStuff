@@ -1,11 +1,8 @@
 /*
- * print out board before every turn
- * fix search so it calls tsameadv instead of search (can have search call tsameadv in search)
- * logger - singleton pattern
- * adv + cre - factory pattern
  * jUnit testing 
  * extra credit??
  */
+
 
 
 import java.util.ArrayList;
@@ -18,9 +15,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+// import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Assertions;
+
 public class OneDoc {
 
     public static void main(String[] args) {
+
         // Get the main object for running games
         Engine gameEngine = new Engine();
 
@@ -135,16 +137,13 @@ class celebrateCommand implements Command{
 class searchCommand implements Command{
     //reference to the light
     Adventurer a;
-    public searchCommand(Adventurer a){
+    Engine e;
+    public searchCommand(Adventurer a, Engine e){
         this.a = a;
+        this.e = e;
     }
     public void execute(){
-        a.search();
-        /*
-        if(tSameAdv(treasures, a)){
-            treasureCount += 1;
-        }
-         */
+        e.tSameAdv(e.treasures, a);
     }
 } 
 
@@ -274,7 +273,7 @@ class Engine implements Logger {
         RemoteControl control = new RemoteControl();
         Command move = new moveCommand(a);
         Command celebrate = new celebrateCommand(a);
-        Command search = new searchCommand(a);
+        Command search = new searchCommand(a, this);
         Command fight = new fightCommand(a, creaturesInRoom);
 
         if(a.type == AdventurerType.RUNNER){
@@ -467,7 +466,7 @@ class Engine implements Logger {
         }
         while (!((adventurers.get(0).allTreasureFound = false) || adventurers.isEmpty() || creatures.isEmpty())); 
 
-        if(adventurers.get(0).allTreasureFound = true){
+        if(adventurers.get(0).allTreasureFound == true){
             System.out.println("All treasure");
         }
         else if(adventurers.isEmpty()){
@@ -535,9 +534,9 @@ class Engine implements Logger {
             writeTheStuff += "Total Active Creatures: " + creatures.size() + "\r\n";
             writeTheStuff += "\r\n";
             writeTheStuff += "Creatures        Room\r\n";
-            /*for(int i = 0; i < creatures.size(); i++){
+            for(int i = 0; i < creatures.size(); i++){
                 out(creatures.get(i).name + "        " + creatures.get(i).location + "\r\n");
-            }*/
+            }
 
             out(writeTheStuff);
 
@@ -551,9 +550,6 @@ class Engine implements Logger {
             e.printStackTrace();
         }
     }
-
-    /*
-*/
 
     // In a turn, the adventurers go and then the creatures go
     // I decided to do the extra Runner turn here because it was easy reuse of turn logic
@@ -943,6 +939,8 @@ class Runner extends Adventurer {
             treasureCount += 1;
         }*/
         //*************************************** End of stuff I added ***************************************
+        
+        //e.tSameAdv(t, this);
         
         return (Random.RollTwoDice() >= searchNum); // true if 10 or better roll
     };
@@ -1394,3 +1392,11 @@ class Potion extends Treasure{
         type = "potion";
     }
 }
+
+
+/*@Test 
+void trueAssumption()
+{
+    assumeTrue(5 > 1);
+    assertEquals(5 + 2, 7);
+}*/

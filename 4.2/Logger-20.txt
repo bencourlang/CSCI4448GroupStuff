@@ -1,0 +1,9 @@
+---Tracker: Turn 20 ---
+
+Total Active Adventurers: 1
+Adventurers        Room        Health        Treasure
+great name        2-2-2        11        
+
+Total Active Creatures: 8
+
+Creatures        Room

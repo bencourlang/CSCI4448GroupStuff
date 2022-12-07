@@ -1,0 +1,9 @@
+Group Members: Veda Jammula & Ben Courlang
+
+Unity Version using C#: 2021.3.11f1
+
+1. Use the up, left, and right keys to avoid the logs 
+2. Use the mouse to change the camera angle
+3. Avoid the logs and tiles(the tiles will fall randomly)
+4. Complete the 60 seconds of staying alive
+5. Each time you get hit by a log you loose 1 out of 3 lives

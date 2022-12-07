@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using UnityEngine.SceneManagement;
+
 public class HealthManager : MonoBehaviour
 {
     //Get AI to take dmg and stuff
@@ -114,6 +116,7 @@ public class HealthManager : MonoBehaviour
 
             if(currentHp <= 0){
                 Destroy(player);
+                SceneManager.LoadScene("EndCard");
                 return;
             }
 

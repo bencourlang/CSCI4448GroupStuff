@@ -19,6 +19,20 @@ public class AIController : MonoBehaviour
 
     private float lastJumpedcd = 1;
 
+
+    static public float moveSpeedStatic;
+    static public float jumpForceStatic;
+
+    static public CharacterController controllerStatic;
+
+    static private Vector3 moveDirectionStatic;
+
+    static public float gravityScaleStatic;
+
+    static private GameObject lastJumpedStatic;
+
+    static private float lastJumpedcdStatic = 1;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -89,5 +103,88 @@ public class AIController : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public abstract class Strategy
+    {
+        public abstract void PlayerOrAI();
+    }
+
+    public class ConcreteStrategyAI : Strategy
+    {
+        public override void PlayerOrAI()
+        {
+            AIControl();
+        }
+    }
+
+    public class ConcreteStrategyPlayer : Strategy
+    {
+        public override void PlayerOrAI()
+        {
+            PlayerControl();
+        }
+    }
+
+    public class Context
+    {
+        Strategy strategy;
+        // Constructor
+        public Context(Strategy strategy)
+        {
+            this.strategy = strategy;
+        }
+        public void ContextInterface()
+        {
+            strategy.PlayerOrAI();
+        }
+    }
+
+    static public void AIControl(){
+        if(lastJumpedcdStatic >= 0){
+            lastJumpedcdStatic -= Time.deltaTime;
+        }
+        else{
+            lastJumpedStatic = null;
+        }
+
+        float yStore = moveDirectionStatic.y;
+        moveDirectionStatic = moveDirectionStatic.normalized * moveSpeedStatic;
+        moveDirectionStatic.y = yStore;
+
+        if(controllerStatic.isGrounded){
+            moveDirectionStatic.y = -3f;
+
+            /*if(aiJump("Laser")){
+                moveDirectionStatic.y = jumpForceStatic;
+            }*/
+        }
+
+        moveDirectionStatic.y += (Physics.gravity.y * Time.deltaTime * gravityScaleStatic);
+        controllerStatic.Move(moveDirectionStatic * Time.deltaTime);
+    }
+
+    static public void PlayerControl(){
+        if(lastJumpedcdStatic >= 0){
+            lastJumpedcdStatic -= Time.deltaTime;
+        }
+        else{
+            lastJumpedStatic = null;
+        }
+
+        float yStore = moveDirectionStatic.y;
+        moveDirectionStatic = moveDirectionStatic.normalized * moveSpeedStatic;
+        moveDirectionStatic.y = yStore;
+
+        if(controllerStatic.isGrounded){
+            moveDirectionStatic.y = -3f;
+
+            /*if(aiJump("Laser")){
+                moveDirectionStatic.y = jumpForceStatic;
+            }*/
+        }
+
+        moveDirectionStatic.y += (Physics.gravity.y * Time.deltaTime * gravityScaleStatic);
+        controllerStatic.Move(moveDirectionStatic * Time.deltaTime);
     }
 }

@@ -12,11 +12,6 @@ public class SpawnManager : MonoBehaviour
         //AI.AddComponent<CharacterController>();
 
         Instantiate(AI, new Vector3(0f, 1f, 0f), Quaternion.identity);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //Instantiate(Player, new Vector3(0f, 1f, 0f), Quaternion.identity);
     }
 }
